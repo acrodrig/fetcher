@@ -1,1 +1,1 @@
-export { Fetcher } from "./src/fetcher.ts";
+export { Fetcher, type Logger } from "./src/fetcher.ts";
