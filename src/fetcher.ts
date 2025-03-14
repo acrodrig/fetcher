@@ -10,7 +10,7 @@ export interface Logger {
 
 export class Fetcher {
   sequence = 0;
-  endpoint;
+  endpoint: string;
   headers: Headers;
   logger?: Logger;
 
@@ -35,42 +35,42 @@ export class Fetcher {
   }
 
   // deno-lint-ignore no-explicit-any
-  delete<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  delete<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("DELETE", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  get<T = any>(path: string, qs?: QueryString, data?: undefined, options?: RequestInit) {
+  get<T = any>(path: string, qs?: QueryString, data?: undefined, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("GET", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  head<T = any>(path: string, qs?: QueryString, data?: undefined, options?: RequestInit) {
+  head<T = any>(path: string, qs?: QueryString, data?: undefined, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("HEAD", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  patch<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  patch<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("PATCH", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  post<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  post<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("POST", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  put<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  put<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("PUT", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  report<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  report<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("REPORT", path, qs, data, options);
   }
 
   // deno-lint-ignore no-explicit-any
-  propfind<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit) {
+  propfind<T = any>(path: string, qs?: QueryString, data?: unknown, options?: RequestInit): Promise<Response & { data: T }> {
     return this.op<T>("PROPFIND", path, qs, data, options);
   }
 
