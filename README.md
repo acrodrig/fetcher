@@ -1,6 +1,6 @@
 # Fetcher
 
-A lightweight and flexible TypeScript class for making HTTP requests with built-in logging and request sequence tracking.
+A lightweight flexible TypeScript class for making HTTP requests with built-in logging and request sequence tracking.
 
 ## Features
 
