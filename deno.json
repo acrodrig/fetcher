@@ -1,5 +1,5 @@
 {
-  "name": "@acr/hub",
+  "name": "@acr/fetcher",
   "license": "MIT",
   "exports": "./mod.ts",
   "fmt": {
