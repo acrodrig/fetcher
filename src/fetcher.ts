@@ -9,6 +9,13 @@ export interface Logger {
 }
 
 export class Fetcher {
+  static #CONSOLE: Console;
+
+  static {
+    Fetcher.#CONSOLE = Object.create(console);
+    Fetcher.#CONSOLE.debug = () => {};
+  }
+
   sequence = 0;
   endpoint: string;
   headers: Headers;
@@ -19,7 +26,7 @@ export class Fetcher {
   constructor(headers: HeadersInit, endpoint = "", logger?: Logger) {
     this.headers = new Headers(headers);
     this.endpoint = endpoint;
-    this.logger = logger;
+    this.logger = logger ?? Fetcher.#CONSOLE;
   }
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#setting_a_body
@@ -121,8 +128,7 @@ export class Fetcher {
     else data = await response.text();
 
     if (response.status >= 400) {
-      // Even if there is no logger, we should not eat the error
-      (this.logger ?? console).error({ method: "fetch:response", url: options.method + " " + url, headers: Object.fromEntries(headers), status: response.status, error: data });
+      this.logger?.error({ method: "fetch:response", url: options.method + " " + url, headers: Object.fromEntries(headers), status: response.status, error: data });
     }
 
     this.logger?.debug({ method: "fetch:response", url: options.method + " " + url, headers, status: response.status, data: data });
