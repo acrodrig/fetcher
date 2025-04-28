@@ -18,16 +18,21 @@ Deno.serve({ port: 8378 }, async (request) => {
   if (url.pathname === "/hello") return new Response("Hello World!");
   if (url.pathname === "/object") return new Response(JSON.stringify({ x: 1, y: 42 }), { headers: { "Content-Type": "application/json" } });
   if (url.pathname === "/upload") return new Response((await request.arrayBuffer()).byteLength.toString());
+  if (url.pathname === "/throw") throw new Error("Error");
   return new Response("Not Found", { status: 404 });
 });
 
-// Dumb logger that stores logs
+// Dumb logger that stores logs instead of printing them
 class Logger {
-  static LEVELS = ["debug", "info", "warn", "error"];
+  static LEVELS = ["debug", "info", "warn", "error", "off"];
   level: number;
   logs: { level: string; args: unknown[] }[] = [];
   constructor(l = "info") {
     this.level = Logger.LEVELS.indexOf(l);
+  }
+  reset(l: string) {
+    this.level = Logger.LEVELS.indexOf(l);
+    this.logs = [];
   }
   log(l: number, ...args: unknown[]) {
     if (this.level <= l) this.logs.push({ level: "debug", args });
@@ -39,7 +44,7 @@ class Logger {
 }
 
 Deno.test("simple", async function () {
-  const fetcher = new Fetcher({}, ENDPOINT);
+  const fetcher = new Fetcher(ENDPOINT);
 
   const stringResponse = await fetcher.get<string>("/hello");
   assertEquals(stringResponse.data, "Hello World!");
@@ -56,7 +61,7 @@ Deno.test("simple", async function () {
 });
 
 Deno.test("upload", async function () {
-  const fetcher = new Fetcher({}, ENDPOINT);
+  const fetcher = new Fetcher(ENDPOINT);
 
   const string = "Hello World!";
   const textResponse = await fetcher.post("/upload", undefined, string, { headers: { "Content-Type": "text/plain" } });
@@ -69,27 +74,30 @@ Deno.test("upload", async function () {
 });
 
 Deno.test("log", async function () {
-  // Patch console.error to make sure it is called
-  let count = 0;
-  console.error = () => count++ && CONSOLE_ERROR("HEY");
+  const logger = new Logger();
+  const fetcher = new Fetcher(ENDPOINT, {}, logger);
 
-  // Will not log errors
-  const plainFetcher = new Fetcher({}, ENDPOINT, undefined);
-  await plainFetcher.get("/hello");
-  assertEquals(count, 0);
+  // Default logger will capture one entry (generated error)
+  await fetcher.get("/hello");
+  await fetcher.get("/foo");
+  assertEquals(logger.logs.length, 1);
 
-  // Log error to console
-  const consoleFetcher = new Fetcher({}, ENDPOINT);
-  await consoleFetcher.get("/foo");
-  assertEquals(count, 1);
+  // Off fetcher will capture none
+  logger.reset("off");
+  await fetcher.get("/hello");
+  await fetcher.get("/foo");
+  assertEquals(logger.logs.length, 0);
 
-  // Unconstrained logger will log everything
-  const logger = new Logger("debug");
-  const loggerFetcher = new Fetcher({}, ENDPOINT, logger);
-  await loggerFetcher.get("/foo");
-  assertEquals(logger.logs.length, 3);
+  // Debug fetcher will capture all entries
+  logger.reset("debug");
+  await fetcher.get("/hello");
+  await fetcher.get("/foo");
+  assertEquals(logger.logs.length, 4);
 
-  // Make sure the rest of the tests NEVER called console.error
-  assertEquals(count, 1);
-  console.error = CONSOLE_ERROR;
+  // Finally default logger with higher 'minError' will not capture any entries
+  logger.reset("info");
+  fetcher.minError = 500;
+  await fetcher.get("/hello");
+  await fetcher.get("/foo");
+  assertEquals(logger.logs.length, 0);
 });

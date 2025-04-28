@@ -20,13 +20,13 @@ export class Fetcher {
   endpoint: string;
   headers: Headers;
   logger?: Logger;
+  minError: number;
 
-  // TODO: Enable only in development?
-
-  constructor(headers: HeadersInit, endpoint = "", logger?: Logger) {
+  constructor(endpoint: string = "", headers: HeadersInit = {}, logger?: Logger, minError = 400) {
     this.headers = new Headers(headers);
     this.endpoint = endpoint;
     this.logger = logger ?? Fetcher.#CONSOLE;
+    this.minError = minError;
   }
 
   // See https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#setting_a_body
@@ -127,11 +127,8 @@ export class Fetcher {
     else if (response.headers.get("Content-Type")?.includes("application/json")) data = await response.json();
     else data = await response.text();
 
-    if (response.status >= 400) {
-      this.logger?.error({ method: "fetch:response", url: options.method + " " + url, headers: Object.fromEntries(headers), status: response.status, error: data });
-    }
-
-    this.logger?.debug({ method: "fetch:response", url: options.method + " " + url, headers, status: response.status, data: data });
+    const level = response.status >= this.minError ? "error" : "debug";
+    this.logger?.[level]({ method: "fetch:response", url: options.method + " " + url, headers, status: response.status, data: data });
     return Object.assign(response, { data: data as T });
   }
 }
