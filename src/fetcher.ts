@@ -1,4 +1,4 @@
-type QueryString = Record<string, boolean | Date | number | string> | undefined;
+type QueryString = Record<string, boolean | Date | number | string | undefined> | undefined;
 
 // Simplified version of Console
 export interface Logger {
