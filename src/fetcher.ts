@@ -82,14 +82,14 @@ export class Fetcher {
   }
 
   // deno-lint-ignore no-explicit-any
-  private op<T = any>(method: string, path: string, qs?: QueryString, data?: unknown, options: RequestInit = { method }) {
+  protected op<T = any>(method: string, path: string, qs?: QueryString, data?: unknown, options: RequestInit = { method }) {
     options.method = method;
     const url = path.startsWith("http") ? path : this.endpoint + path;
     return this.fetch<T>(new URL(url), options, qs, data, new Headers(options?.headers));
   }
 
   // deno-lint-ignore no-explicit-any
-  private async fetch<T = any>(url: URL, options: RequestInit, qs: QueryString, data: unknown, headers: Headers): Promise<Response & { data: T }> {
+  protected async fetch<T = any>(url: URL, options: RequestInit, qs: QueryString, data: unknown, headers: Headers): Promise<Response & { data: T }> {
     // Attached passed in headers to the base headers (only if they are not already set)
     for (const [k, v] of this.headers.entries()) if (!headers.has(k)) headers.append(k, v);
 
