@@ -16,7 +16,7 @@ interface Point {
 Deno.serve({ port: 8378 }, async (request) => {
   const url = new URL(request.url);
   if (url.pathname === "/hello") return new Response("Hello World!");
-  if (url.pathname === "/object") return new Response(JSON.stringify({ x: 1, y: 42 }), { headers: { "Content-Type": "application/json" } });
+  if (url.pathname === "/object") return Response.json({ x: 1, y: 42 });
   if (url.pathname === "/upload") return new Response((await request.arrayBuffer()).byteLength.toString());
   if (url.pathname === "/throw") throw new Error("Error");
   return new Response("Not Found", { status: 404 });

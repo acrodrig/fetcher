@@ -89,7 +89,7 @@ export class Fetcher {
   }
 
   // deno-lint-ignore no-explicit-any
-  private async fetch<T = any>(url: URL, options: RequestInit, qs: QueryString, data: unknown, headers: Headers, _auth = false): Promise<Response & { data: T }> {
+  private async fetch<T = any>(url: URL, options: RequestInit, qs: QueryString, data: unknown, headers: Headers): Promise<Response & { data: T }> {
     // Attached passed in headers to the base headers (only if they are not already set)
     for (const [k, v] of this.headers.entries()) if (!headers.has(k)) headers.append(k, v);
 
@@ -106,7 +106,7 @@ export class Fetcher {
     if (contentType?.startsWith("application/x-www-form-urlencoded")) data = new URLSearchParams(data as Record<string, string>).toString();
 
     // Set the body
-    options.body = Fetcher.#isValidBody(data) ? data : JSON.stringify(data);
+    options.body = Fetcher.#isValidBody(data) ? data as BodyInit : JSON.stringify(data);
 
     // NOTE: Paramount for Apple Servers - it will return 500 is sent a default 'Accept-Language: *' :(
     headers.set("Accept-Language", "en");
