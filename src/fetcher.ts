@@ -82,7 +82,7 @@ export class Fetcher {
   }
 
   // deno-lint-ignore no-explicit-any
-  protected op<T = any>(method: string, path: string, qs?: QueryString, data?: unknown, options: RequestInit = { method }) {
+  protected op<T = any>(method: string, path: string, qs?: QueryString, data?: unknown, options: RequestInit = { method }): Promise<Response & { data: T }> {
     options.method = method;
     const url = path.startsWith("http") ? path : this.endpoint + path;
     return this.fetch<T>(new URL(url), options, qs, data, new Headers(options?.headers));
